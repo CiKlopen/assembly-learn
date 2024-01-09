@@ -183,5 +183,54 @@
     pop bx
     pop cx
 
+    问题。 变成，将10000H~1000FH这段空间当作栈，初始状态栈是空的，将ax，bx，ds中的数据入栈
+        mov ax,1000
+        mov ss,ax
+        mov sp,0010H            为什么特意强调栈是空的，因为栈不为空的话，sp的指向可能有问题
 
-        
+        push ax
+        push bx
+        push ds
+    
+
+    实验 ax bx 数据交换
+
+        mov ax,1000
+        mov ss,ax
+        mov sp,0010
+        mov ax,001a
+        mov bx,001b
+        push ax
+        push bx
+        pop ax
+        pop bx     栈中数据后入先出 完成数据的 交换   ax = 001b bx = 001a
+    
+    这里需要注意的是 ss:sp sp的指向问题，push前 sp=sp—2 所以，如果想ss:sp指向10000H  ss = 1000 sp = 0002
+    执行push时 CPU的两步操作是；先改变sp，后向ss:sp处传送。执行pop时，先读取ss:sp处的数据，后改变sp
+# 第一个程序
+    
+        ds 正段地址寄存器
+        ex 副段地址寄存器
+        cx loop指令循环寄存器次数
+        loop指令 
+            assume cs:code   指定代码起始地址段为code
+            code segment
+                dw 0123H,0456H,0789H,0ABCH,0DEFH,0FEDH,0CBAH,0987H 在代码段中定义数据
+
+            start: mov bx,0     这里的start 是为了告诉编译器，cs:ip的指向位置  不能和上面的数据冲突
+                    mov ax,0
+                    mov cx,8
+
+                    s: add bx,cs:[ax]     ############ 这里需要注意，段前缀知识点  ##########
+                        add ax,2
+                        loop s  循环标记s  从s处开始循环，先cx减一，再跳转到s处执行，减一为0时不执行
+                    
+                    mov ax,4c00h
+                    int 21h
+            code end
+            end start
+
+# 由源程序到目标程序
+
+        先编译后连接
+        指令为 masm 和 link
