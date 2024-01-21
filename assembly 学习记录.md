@@ -234,3 +234,26 @@
 
         先编译后连接
         指令为 masm 和 link
+        
+# loop循环指令
+        
+        assume cs:code cs:ip 指向code区
+        code segment
+        mov ax，0ffffh
+        mov ds，ax //将 ax中的内容赋值到ds段寄存器中
+        mov bx，6
+
+        mov al，[bx] //[bx]指向 ds：bx 也就是ffff6
+        mov ah，0    // ax的高八位赋值为0
+        
+        mov dx，0 //累加器初始化
+        mov cx，3 //cx寄存器的次数，是loop的循环次数，cx先减1再循环
+
+        s：add dx，ax
+        loop s
+
+        mov ax，4c00h
+        int 21h
+
+        code ends
+        end
